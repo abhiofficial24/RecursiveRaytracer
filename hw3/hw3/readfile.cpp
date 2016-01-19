@@ -264,6 +264,12 @@ void readfile(const char* filename){
 						rightmultiply(scaleMat, transfstack);
 					}
 				}
+				else if (cmd == "directional"){
+					validinput = readvals(s, 6, values);
+				}
+				else if (cmd == "point"){
+					validinput = readvals(s, 6, values);
+				}
 				else if (cmd == "pushTransform"){
 					transfstack.push(transfstack.top());
 				}
