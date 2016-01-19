@@ -1,0 +1,171 @@
+This is a plan to work on HW3
+
+Remember this basic outline given in the lecture
+Image Raytrace(Camera cam, Scene scene, int width,int height)
+{
+  Image image = new Image(width,height);
+  for(int i = 0; i < Height; i++){
+    for(int j = 0; j < width; j++){
+      Ray ray = RayThruPixel(cam, i, j);
+      Intersection hit = Intersect(ray, scene);
+      image[i][j] = FindColor(hit);
+    }
+  }
+  return image;
+}
+
+1. Setup
+Make the appropriate Visual Studio project. This needs to have GLM and freeimage working in both debug
+and release.
+
+I have to figure out how to correctly include and link both libraries but that should not be too hard.
+I must also learn how to use free image.
+
+2. Baby steps
+The homework gives some basic implementation steps. First one is camera.
+In order to test the camera I need to test what it sees. In order to test what it sees it needs to be
+able to display any geometry. The homework suggests starting with quads. I could hack in a quad but I
+think it would be easier to implement and debug the parser that will at the minimum take the size of
+the image, the camera specifications, and a quad specification. That should be easy to do standard c++
+debugging on.
+
+3.Image output from FreeImage
+Before we can look at or test anything we need to see images coming out of the FreeImage library.
+FreeImage needs a width, a height, and bits per pixel which with 8 bit color is 24 bits total.
+height and width will be read in from the input file.
+To actually make the imag we want we need to pass down what that color data is. When the size is read in
+from the file, we need to allocate a 2D array to hold it all
+
+int BPP = 24;
+int WIDTH = inputWidth;
+int HEIGHT = inputHeight;
+float ColorData[][] = new float[WIDTH * BPP][HEIGHT * BPP];
+
+4.Camera and quad
+Once we have the basic parsing, we can move onto the camera showing a basic quad. To show a basic quad
+we have to implement the quad-ray intersection. In order to verify the quad-ray intersection is working,
+we must have a working camera. These need to be working at the same time. I might start on the side of
+quad-ray intersection and see if I can just output "Yes intersection happenes at pixel (x,y)" or "No,
+at pixel (x,y) there was no intersection". Then the camera after. For showing the quad at first the 
+"lighting model" will just be diffuse of the object, or just some default color, on a black background.
+HW suggests getting ambient working at this step too but that will come later.
+
+Note on ray-scene intersections:
+To test for intersection on geometry in the scene the following was presented in lecture 10V2
+Intersection(ray, scene){
+  mindist = infinity; hitobject = NULL;
+  //Find the closest intersection
+  //Test all objects
+  foreach( object in sceneObjects){
+    t = Intersect(ray, object);
+    //Closer than previous closest object
+    if( t>0 && t < mindist){
+      mindist = t; hitobject = object;
+    }
+  }
+  //may already be in Intersect()
+  return IntersectionInfo(mindist, hitobject);
+}
+
+Note on Camera: assignment takes out a special note that the autograder sends rays through the pixel
+centers. I am not sure what that means but it says rays will be at values like 0.5 and 1.5 instead of
+whole integers as those would be corners.
+
+5. Triangle intersection
+With quads intersecting, triangles should follow. The parsing at this point should be straightforward,
+except with the triangleNormal stuff. That's for shading, and for now out "shading" doesn't need it.
+
+First the ray-plane intersection part
+For triangle ABC and Point P
+normal = ((C-A) x (B-A))/abs((C-A) x (B-A))
+plane = vP*vNorm - vA*vNorm = 0
+combine with ray equation
+ray = vP = vP0 + (vP1)t
+(vP0 + (vP1)t)*vNorm = vA*vNorm
+solve for t that becomes
+t = ((vA*vNorm)-(vP0*vNorm))/(vP1*vNorm)
+Now ray-triangle
+Use barycentric coordinates(alpha, beta, gamma)
+P = alphaA + betaB + gammaC
+alpha >= 0, beta >= 0, gamma >=d 0
+alpha + beta + gamma = 1
+That becomes
+P - A = beta(B - A) + gamma(C - A)
+0 <= beta <= 1, 0 <= gamma <= 1, beta + gamma <= 1
+
+6. Sphere intersection
+The equation for this is is different than quads and triangles but the implementation process should be
+similar.
+One thing mentioned in the lecutre about ray-sphere intersections when the "degenerate" case of a ray
+being tangent to the sphere, proffesor said "You can do whatever you think is reasonable". I wonder if
+that will be an issue.
+Ray-Sphere intersection equation:
+t^2(vP1 * vP1) + (2t)vP1*(vP0 - vC) + (vP0 - vC)*(vP0 - vC) - r^2 = 0
+
+7. Reading and stacking transformations
+This is part one of transformations. First we have to read the transformations and verify that works.
+Then the pushing and popping transforms onto some stack needs to be made. We can test that with carefully
+constructed series of transforms that have a predictable, easy to test result when multiplied.
+
+8.Apply transformations to geometry.
+Now that we have appropriate transforms saved per geometry object, we need to apply those
+transformations.
+Apply inverse transform M^-1 to ray. Origin of the ray will move, but the direction is not because is a
+homogeneous coordinate where w=0.
+Do standard ray-surface intersection with your modified ray to the object(so the object was never
+"transformed". It is represented by an equation and not a set of vertices)
+If and when an intersection point is found, transform that point by M. Like Mp.
+Normals work differently. You transform those too but by the inverse transpose of M. (M^-t)n.
+
+9.Light visibility
+Before the shading model makes any sense, we have to calculate visibility of lights from intersection
+points. Visibility determines if an individual light makes any contribution to the color of a specific
+pixel. That is, you shoot a ray from a pixel into the scene and it hits an object. Now instead of just
+giving it the color of the diffuse property of that object like we were doing before, we cast rays from
+that point to every light in the scene. If the ray touches the light without anything in the middle, 
+then that light will contribute to the color of the pixel in which we original shot that ray out of.
+If the ray does not touch that light, don't add that light at all to the shading equation for that pixel.
+These object intersection to light rays are called "shadow rays". At this stage we can use a simplified
+shading model of object diffuse times some constant times how many lights are hitting it, just to get the
+idea down.
+
+10. Basically the rest of the commands we don't have yet.
+With the lighting model going into place next, we must implement the rest of the file parsing commands.
+It should be straightforward at this point and work just like the others, but it has to get done before
+we even bother witht the actual shading models.
+
+11.Shading model
+The code for shading should be alot like it was in HW2, only now we will actually account for light
+attenuation and visibility too. Attenuation comes from being read in from the input file OR there is a
+default value of (1,0,0)(constant, linear, quadratic). With the visibility and the attenuation we can
+make all the adjustments from the lighting model of HW2 to create our new one. The equation itself is in
+the homework description.
+
+12. recursive ray tracing  model.
+Basic idea here is that after the previous shading stuff has been calculated with the shadow rays and the
+shading model, we add refelction rays to the mix. WE get that from the reflectivity of the material times
+the color of the refelected ray. That reflected ray of course can have an intersection with another
+object which can also have a reflectivity which then means it gets it's own reflection rays. That is
+where the "recusive" part comes from. The color of the refection ray is then added to the "original"
+color we got before in step 10 of the shading model. Just straight addition. Lecture 10 video 4 explains
+all this.
+The thing we want to get right here is just get the reflection rays going in the right directions, how that
+effects colors will be the next step. It is easy enough to have debug messages like "Reflected ray for
+pixel(x,y) is going in direction(x,y,z).
+
+13. Lighting with the recusive mirror thing.
+Now that our reflection rays act as rays we can start having them influence shading. This comes in the form
+of recurisve specularity. Recursive transmission was discussed, but is not part of the homework. I believe
+the recusive term for the recusive specularity is the specularity material property times the color of the
+reflection ray.Of course you do this calculation for each depth of reflection and add them all up into one
+final term before adding them to the shadijng model. Just like in step 11, just straight addition to the
+equation. About a minute and a half into Lecture 10 video 4 it gets talked about.
+
+14. Max recursion
+One of the parsed values from the file is maxdepth. The maxdepth parameter tells how many reflections deep
+the recursive ray tacing can go. This prevent infinite recursion in a hall of mirrors scenario. All we need
+to do is every time we make another reflection ray we count how many deep we are in, and if that is equal
+to maxdepth when we cast the ray, even if it intersects a mirror object we cast no more reflection rays
+from it. I might consider doing this earlier than this step as it could casuse problems in some examples
+if this isn't present right away.
+

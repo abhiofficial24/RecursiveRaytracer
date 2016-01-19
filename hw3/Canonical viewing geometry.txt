@@ -1,0 +1,30 @@
+We are in world cordinates looking down the -w axis.
+For now the virtual image plane is located one unit away from the camera.
+
+After moving 1 unit on the -w axis each pixel is location some direction alpha along the u vector which
+is horizontal and beta which is vertical.
+
+to get the alpha and beta:
+j - (w/2)
+And then normalize this like
+(j-(w/2))/(w-2)
+this makes it -1 to 1 across the image like in openGL normalization.
+where j is the y pixel coordinate and i is the x pixel coordinate.
+
+Now consider the field of view in the x direction. If you diagram that out it makes a cone with the
+tip being the eye location and the width of the virtual image plane being the diameter.
+Since we are moving in one specific direction, we are only really considering half of the field of view
+so fovx/2.
+
+Draw that triangle now where one point is eye location, another is (0,0) and the line segment that 
+connects them is -w. The angle to consider is the one at the eye location. where one side is -w and the
+other connects eye location to the edge of the field of view. The dimension we want is the tangent of 
+that angle.
+
+Note this is for alpha, the horizontal one. For beta it's field of view in the y direction.
+alpha = tan(fovx/2)*((j-(width/2))/width/2)
+beta = tan(fovy/2)*(((height/2) - i)/(height/2))
+
+Given alpha and beta the final ray direction is:
+ray = eye + (((alpha)u + (beta)v - w)/|(alpha)u + (beta)v - w|)
+eye is the origin and the rest is the direction.

@@ -1,0 +1,21 @@
+It's the same as it was before in openGL getting a u, v, and w to form a coordinate frame from vectors a
+and b.
+Vectors a and b also come from the same place as they did in openGL
+
+a = eye-center. In the function readfile, values[3], values[4], and values[5] make the camera center and
+we read those just fine right now. Eye is jus eyeinit and that will never change because we never rotate
+the scene. eye is values[0], values[1], and values[2].
+
+So in our raytracer vec3 a = eyeinit-center = 
+vec3(values[0], values[1], values[2]) - vec3(values[3], values[4], values[5])
+
+b is the up vector. Currently I don't have that calculating correctly since I don't have
+Transform::upvector from HW2 but that is easy to fix. Once that is represented in the raytracer as well
+we will have b.
+
+Then from a and b we can get u,v,w. There equations are:
+w = a/|a|
+u = b cross w / |b cross w|
+v = w cross u
+
+And you can see that these need to be found in that order.
