@@ -1,4 +1,6 @@
+
 #include "objDefinitions.h"
+#include "HitInfo.h"
 
 
 //return a ray transformed by the inverse of the transform;
@@ -65,6 +67,9 @@ Quad::Quad(glm::vec3 inputPoints[4]){
 //Define intersections of quads
 void Quad::Intersect(float*& colorVals, Ray ray){
 
+	//Create the hit info to return
+	HitInfo hitInfo = HitInfo();
+
 	ray = TransformRay(ray);
 
 	//Color values
@@ -125,6 +130,15 @@ void Quad::Intersect(float*& colorVals, Ray ray){
 		colorVals[0] = 0.0;
 	}
 
+	//Assign the values of hit info
+	hitInfo.t = t;
+	hitInfo.raycast = ray;
+	hitInfo.position = ray.origin + ray.direction*t;
+	hitInfo.normal = quadPlaneNorm;
+	hitInfo.collisionObject = this;
+
+	//return hitInfo;
+
 }
 
 /*Triangle*/
@@ -142,6 +156,9 @@ Triangle::Triangle(glm::vec3 inputPoints[3]){
 }
 
 void Triangle::Intersect(float*& colorVals, Ray ray){
+
+	//Create the hit info to return
+	HitInfo hitInfo = HitInfo();
 
 	ray = TransformRay(ray);
 
@@ -208,6 +225,13 @@ void Triangle::Intersect(float*& colorVals, Ray ray){
 		colorVals[2] = 0.0;
 	}
 
+	//Assign the values of hit info
+	hitInfo.t = t;
+	hitInfo.position = P;
+	hitInfo.normal = triNormal;
+	hitInfo.collisionObject = this;
+
+	//return hitInfo;
 }
 
 
@@ -226,6 +250,9 @@ Sphere::Sphere(glm::vec3 pos, float rad){
 
 //Define how intersection will work for a sphere
 void Sphere::Intersect(float*& colorVals, Ray ray){
+
+	//Create the hit info to return
+	HitInfo hitInfo = HitInfo();
 
 	ray = TransformRay(ray);
 
@@ -252,7 +279,7 @@ void Sphere::Intersect(float*& colorVals, Ray ray){
 		colorVals[0] = 0.0;
 		colorVals[1] = 0.0;
 		colorVals[2] = 0.0;
-		return;
+		return ;
 	}
 
 	//Roots are not complex so lets find them
@@ -264,7 +291,7 @@ void Sphere::Intersect(float*& colorVals, Ray ray){
 		colorVals[0] = 0.0;
 		colorVals[1] = 0.0;
 		colorVals[2] = 0.0;
-		return;
+		return ;
 	}
 
 	glm::vec3 intersectionPoint;
@@ -288,7 +315,7 @@ void Sphere::Intersect(float*& colorVals, Ray ray){
 			colorVals[0] = 0.0;
 			colorVals[1] = 0.0;
 			colorVals[2] = 255.0;
-			return;
+			return ;
 
 		}
 	}
@@ -301,7 +328,7 @@ void Sphere::Intersect(float*& colorVals, Ray ray){
 		colorVals[0] = 0.0;
 		colorVals[1] = 0.0;
 		colorVals[2] = 255.0;
-		return;
+		return ;
 
 	}
 	else if (root2 > 0 && root1 < 0){
@@ -311,10 +338,18 @@ void Sphere::Intersect(float*& colorVals, Ray ray){
 		colorVals[0] = 0.0;
 		colorVals[1] = 0.0;
 		colorVals[2] = 255.0;
-		return;
+		return ;
 	}
 	colorVals[0] = 0.0;
 	colorVals[1] = 0.0;
 	colorVals[2] = 0.0;
-	return;
+
+	//Assign the values of hit info
+	hitInfo.t = t;
+	hitInfo.position = intersectionPoint;
+	//hitInfo.normal = triNormal;
+	hitInfo.collisionObject = this;
+
+	return ;
+
 }

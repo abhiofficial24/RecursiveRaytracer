@@ -93,6 +93,8 @@
     <ClCompile Include="transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HitInfo.h" />
+    <ClInclude Include="lightSpec.h" />
     <ClInclude Include="objDefinitions.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="readfile.h" />

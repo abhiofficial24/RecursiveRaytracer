@@ -10,6 +10,7 @@
 #include "transform.h"
 #include "readfile.h"
 #include "objDefinitions.h"
+#include "lightSpec.h"
 
 #define BPP 24 // 8 bits per color and 3 colors per pixel
 int HEIGHT;
@@ -23,7 +24,8 @@ float fovy;
 std::vector<glm::vec3> vertexList;
 float* ColorData;
 std::vector<GeometryObject*> geometryVector;
-
+lightSpec lightData[numLights];
+int numused;
 
 // You may not need to use the following two functions, but it is provided
 // here for convenience
@@ -60,6 +62,9 @@ bool readvals(std::stringstream &s, const int numvals, float* values)
 
 
 void readfile(const char* filename){
+
+	numused = 0;
+
 	std::string str, cmd;
 	std::ifstream in;
 	in.open(filename);
@@ -266,9 +271,80 @@ void readfile(const char* filename){
 				}
 				else if (cmd == "directional"){
 					validinput = readvals(s, 6, values);
+					if (validinput){
+						//position
+						glm::vec4 position = glm::vec4(0.0);
+
+						//x y and z positions
+						position[0] = values[0];
+						position[1] = values[1];
+						position[2] = values[2];
+						position[3] = 0.0;
+
+						//transform position by current transform
+						position = transfstack.top() * position;
+
+						lightSpec newLight = lightSpec();
+						newLight.type = lightSpec::Directional;
+
+						//Set the transformed position
+						glm::vec3 lightPos;
+						lightPos[0] = position[0];
+						lightPos[1] = position[1];
+						lightPos[2] = position[2];
+
+						//SEt the light color
+						glm::vec3 lightCol;
+						lightCol[0] = values[3];
+						lightCol[1] = values[4];
+						lightCol[2] = values[5];
+
+						newLight.position = lightPos;
+						newLight.color = lightCol;
+
+						lightData[numused] = newLight;
+
+						numused++;
+					}
+					
 				}
 				else if (cmd == "point"){
 					validinput = readvals(s, 6, values);
+					if (validinput){
+						//position
+						glm::vec4 position = glm::vec4(0.0);
+
+						//x y and z positions
+						position[0] = values[0];
+						position[1] = values[1];
+						position[2] = values[2];
+						position[3] = 1.0;
+
+						//transform position by current transform
+						position = transfstack.top() * position;
+
+						lightSpec newLight = lightSpec();
+						newLight.type = lightSpec::Point;
+
+						//Set the transformed position
+						glm::vec3 lightPos;
+						lightPos[0] = position[0];
+						lightPos[1] = position[1];
+						lightPos[2] = position[2];
+
+						//SEt the light color
+						glm::vec3 lightCol;
+						lightCol[0] = values[3];
+						lightCol[1] = values[4];
+						lightCol[2] = values[5];
+
+						newLight.position = lightPos;
+						newLight.color = lightCol;
+
+						lightData[numused] = newLight;
+
+						numused++;
+					}
 				}
 				else if (cmd == "pushTransform"){
 					transfstack.push(transfstack.top());

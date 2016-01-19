@@ -3,6 +3,7 @@
 #include <stack>
 #include <vector>
 #include "objDefinitions.h"
+#include "lightSpec.h"
 
 //Temp variable definitions
 
@@ -18,6 +19,11 @@ extern float fovy;
 extern std::vector<glm::vec3> vertexList;
 extern float* ColorData;
 extern std::vector<GeometryObject*> geometryVector;
+
+// Lighting parameter array, similar to that in the fragment shader
+const int numLights = 10;
+extern lightSpec lightData[numLights]; // Light Specification data
+extern int numused;
 
 // Readfile definitions 
 bool readvals(std::stringstream &s, const int numvals, float * values);

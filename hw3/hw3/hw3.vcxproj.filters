@@ -44,5 +44,11 @@
     <ClInclude Include="transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HitInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lightSpec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

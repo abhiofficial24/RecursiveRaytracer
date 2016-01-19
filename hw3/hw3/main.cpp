@@ -13,13 +13,47 @@
 #include "objDefinitions.h"
 #include "transform.h"
 #include <FreeImage.h>
+#include "HitInfo.h"
 
 
 #define BPP 24 // 8 bits per color and 3 colors per pixel
 
 using namespace std;
 
-///void createImage()
+HitInfo RayIntersect(Ray ray, int count){
+	float* colorVals = new float[3];
+	bool writeTo = false;
+	for (std::vector<GeometryObject*>::iterator it = geometryVector.begin(); it != geometryVector.end(); ++it){
+		//allocate a pointer for storing the color data
+		if (dynamic_cast<Quad*>(*it) != nullptr){
+			Quad* quad = dynamic_cast<Quad*>(*it);
+			//Get the new color values
+			quad->Intersect(colorVals, ray);
+			writeTo = true;
+		}
+		else if (dynamic_cast<Triangle*>(*it) != nullptr){
+			Triangle* triangle = dynamic_cast<Triangle*>(*it);
+			//Get the new color values
+			triangle->Intersect(colorVals, ray);
+			if (colorVals[0] != 0.0){
+				ColorData[count] = colorVals[0];
+				ColorData[count + 1] = colorVals[1];
+				ColorData[count + 2] = colorVals[2];
+			}
+		}
+		else if (dynamic_cast<Sphere*>(*it) != nullptr){
+			Sphere* sphere = dynamic_cast<Sphere*>(*it);
+			//Get the new color values
+			sphere->Intersect(colorVals, ray);
+			if (colorVals[2] != 0.0){
+				ColorData[count] = colorVals[0];
+				ColorData[count + 1] = colorVals[1];
+				ColorData[count + 2] = colorVals[2];
+			}
+		}
+	}
+	return HitInfo();
+}
 
 float* Raytrace(){
 	//Open a log file
@@ -31,7 +65,6 @@ float* Raytrace(){
 			Ray nextRay = Ray::ShootRay(i, j);
 			float* colorVals = new float[3];
 			bool writeTo = false;
-			//myfile << "shooting ray(" << i << ", " << j << ") in direction (" << nextRay.direction[0] << ", " << nextRay.direction[1] << ", " << nextRay.direction[2] << ")" << std::endl;
 			for (std::vector<GeometryObject*>::iterator it = geometryVector.begin(); it != geometryVector.end(); ++it){
 				//allocate a pointer for storing the color data
 				if (dynamic_cast<Quad*>(*it) != nullptr){
