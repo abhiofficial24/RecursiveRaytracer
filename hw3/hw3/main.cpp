@@ -23,36 +23,62 @@ using namespace std;
 HitInfo RayIntersect(Ray ray, int count){
 	float* colorVals = new float[3];
 	bool writeTo = false;
+	//Create a HitInfo, we will test it on every geometry object we can
+	HitInfo hitInfo = HitInfo();
+	//Set a really high distance threshold
+	hitInfo.t = 100;
 	for (std::vector<GeometryObject*>::iterator it = geometryVector.begin(); it != geometryVector.end(); ++it){
 		//allocate a pointer for storing the color data
 		if (dynamic_cast<Quad*>(*it) != nullptr){
 			Quad* quad = dynamic_cast<Quad*>(*it);
 			//Get the new color values
-			quad->Intersect(colorVals, ray);
+			hitInfo = quad->Intersect(colorVals, ray);
 			writeTo = true;
 		}
 		else if (dynamic_cast<Triangle*>(*it) != nullptr){
 			Triangle* triangle = dynamic_cast<Triangle*>(*it);
 			//Get the new color values
-			triangle->Intersect(colorVals, ray);
-			if (colorVals[0] != 0.0){
-				ColorData[count] = colorVals[0];
-				ColorData[count + 1] = colorVals[1];
-				ColorData[count + 2] = colorVals[2];
+			HitInfo curHitInfo = triangle->Intersect(colorVals, ray);
+			//If the new intersection is closer, it is the new hit info
+			if (curHitInfo.t < hitInfo.t){
+				hitInfo = curHitInfo;
 			}
 		}
 		else if (dynamic_cast<Sphere*>(*it) != nullptr){
 			Sphere* sphere = dynamic_cast<Sphere*>(*it);
 			//Get the new color values
-			sphere->Intersect(colorVals, ray);
-			if (colorVals[2] != 0.0){
-				ColorData[count] = colorVals[0];
-				ColorData[count + 1] = colorVals[1];
-				ColorData[count + 2] = colorVals[2];
+			HitInfo curHitInfo = sphere->Intersect(colorVals, ray);
+			//If the new intersection is closer, it is the new hit info
+			if (curHitInfo.t < hitInfo.t){
+				hitInfo = curHitInfo;
 			}
 		}
 	}
-	return HitInfo();
+	return hitInfo;
+}
+
+void FindColor(HitInfo info, float* colorVals){
+	//If the collision actually occured
+	if (info.t < 100){
+		//Color changes dependent on what object it was
+		if (dynamic_cast<Triangle*>(info.collisionObject)){
+			colorVals[0] = 255.0;
+			colorVals[1] = 0.0;
+			colorVals[2] = 0.0;
+		}
+		//Color changes dependent on what object it was
+		else if (dynamic_cast<Sphere*>(info.collisionObject)){
+			colorVals[0] = 0.0;
+			colorVals[1] = 0.0;
+			colorVals[2] = 255.0;
+		}
+	}
+	//If there was no intersection
+	else{
+		colorVals[0] = 0.0;
+		colorVals[1] = 0.0;
+		colorVals[2] = 0.0;
+	}
 }
 
 float* Raytrace(){
@@ -63,37 +89,12 @@ float* Raytrace(){
 	for (int i = 0; i < WIDTH; i++){
 		for (int j = 0; j < HEIGHT; j++){
 			Ray nextRay = Ray::ShootRay(i, j);
+			HitInfo hitInfo = RayIntersect(nextRay, count);
 			float* colorVals = new float[3];
-			bool writeTo = false;
-			for (std::vector<GeometryObject*>::iterator it = geometryVector.begin(); it != geometryVector.end(); ++it){
-				//allocate a pointer for storing the color data
-				if (dynamic_cast<Quad*>(*it) != nullptr){
-					Quad* quad = dynamic_cast<Quad*>(*it);
-					//Get the new color values
-					quad->Intersect(colorVals, nextRay);
-					writeTo = true;
-				}
-				else if (dynamic_cast<Triangle*>(*it) != nullptr){
-					Triangle* triangle = dynamic_cast<Triangle*>(*it);
-					//Get the new color values
-					triangle->Intersect(colorVals, nextRay);
-					if (colorVals[0] != 0.0){
-						ColorData[count] = colorVals[0];
-						ColorData[count + 1] = colorVals[1];
-						ColorData[count + 2] = colorVals[2];
-					}
-				}
-				else if (dynamic_cast<Sphere*>(*it) != nullptr){
-					Sphere* sphere = dynamic_cast<Sphere*>(*it);
-					//Get the new color values
-					sphere->Intersect(colorVals, nextRay);
-					if (colorVals[2] != 0.0){
-						ColorData[count] = colorVals[0];
-						ColorData[count + 1] = colorVals[1];
-						ColorData[count + 2] = colorVals[2];
-					}
-				}
-			}
+			FindColor(hitInfo, colorVals);
+			ColorData[count] = colorVals[0];
+			ColorData[count + 1] = colorVals[1];
+			ColorData[count + 2] = colorVals[2];
 			count += 3;
 		}
 	}
@@ -101,6 +102,7 @@ float* Raytrace(){
 	myfile.close();
 	return ColorData;
 }
+
 
 
 void Create_Image(float* ColorData, int width, int height, std::string imageName){

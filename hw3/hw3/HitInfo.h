@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ray.h"
-#include "objDefinitions.h"
+
+class GeometryObject;
 
 //Data for when an intersection occurs
 class HitInfo{

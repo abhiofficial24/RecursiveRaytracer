@@ -3,11 +3,12 @@
 #include <iostream>
 #include "glm/glm.hpp"
 
+#include "HitInfo.h"
 #include "ray.h"
 
 class GeometryObject{
 public:
-	virtual void Intersect(float*& colorVals, Ray ray){};
+	virtual HitInfo Intersect(float*& colorVals, Ray ray){ return HitInfo(); };
 	glm::mat4 transform;
 	
 	Ray TransformRay(Ray ray);
@@ -20,7 +21,7 @@ public:
 	Quad(glm::vec3 inputPoints[4]);
 
 	//Define how intersection will return a color.
-	void Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(float*& colorVals, Ray ray) override;
 
 	glm::vec3 points[4];
 };
@@ -31,7 +32,7 @@ public:
 	Triangle(glm::vec3 inputPoints[3]);
 
 	//Define how the intersection will return a color
-	void Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(float*& colorVals, Ray ray) override;
 
 	//Points that define the triangle
 	glm::vec3 points[3];
@@ -44,7 +45,7 @@ public:
 	Sphere(glm::vec3 pos, float rad);
 
 	//Define how the intersection will return a color
-	void Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(float*& colorVals, Ray ray) override;
 
 	glm::vec3 position;
 	float radius;
