@@ -27,6 +27,12 @@ std::vector<GeometryObject*> geometryVector;
 lightSpec lightData[numLights];
 int numused;
 
+glm::vec3 diffuse;
+glm::vec3 specular;
+glm::vec3 emission;
+float shininess;
+
+
 // You may not need to use the following two functions, but it is provided
 // here for convenience
 
@@ -71,6 +77,15 @@ void readfile(const char* filename){
 	if (in.fail()){
 		std::cout << "File opening has failed" << std::endl;
 	}
+
+	//Defaults for the material properties
+	//Current material properties
+	diffuse = glm::vec3(0.0, 0.0, 0.0);
+	ambient = glm::vec3(0.0, 0.0, 0.0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
+	shininess = 0.0;
+
+
 	if (in.is_open()) {
 
 		// I need to implement a matrix stack to store transforms.  
@@ -183,6 +198,12 @@ void readfile(const char* filename){
 						//Give it the current transform
 						curQuad->transform = transfstack.top();
 
+						//Give it the current material properties
+						curQuad->diffuse = diffuse;
+						curQuad->specular = specular;
+						curQuad->shininess = shininess;
+						curQuad->emission = emission;
+
 						//Push it onto the stack.
 						geometryVector.push_back(curQuad);
 					}
@@ -209,6 +230,12 @@ void readfile(const char* filename){
 						//Give it the current transform
 						curTriangle->transform = transfstack.top();
 
+						//Give it the current material properties
+						curTriangle->diffuse = diffuse;
+						curTriangle->specular = specular;
+						curTriangle->shininess = shininess;
+						curTriangle->emission = emission;
+
 						//Push it onto the stack.
 						geometryVector.push_back(curTriangle);
 					}
@@ -230,6 +257,12 @@ void readfile(const char* filename){
 
 						//Give it the current transform
 						curSphere->transform = transfstack.top();
+
+						//Give it the current material properties
+						curSphere->diffuse = diffuse;
+						curSphere->specular = specular;
+						curSphere->shininess = shininess;
+						curSphere->emission = emission;
 
 						//push the sphere onto the stack
 						geometryVector.push_back(curSphere);
@@ -341,9 +374,42 @@ void readfile(const char* filename){
 						newLight.position = lightPos;
 						newLight.color = lightCol;
 
+						std::cout << "Point light at position (" << position[0] << ", " << position[1] << ", " << position[2] 
+							<< ") with color (" << lightCol[0] << ", " << lightCol[1] << ", " << lightCol[2] << ")" << std::endl;
+
 						lightData[numused] = newLight;
 
 						numused++;
+					}
+				}
+				else if (cmd == "diffuse"){
+					validinput = readvals(s, 3, values);
+					if (validinput){
+						diffuse[0] = values[0];
+						diffuse[1] = values[1];
+						diffuse[2] = values[2];
+					}
+				}
+				else if (cmd == "specular"){
+					validinput = readvals(s, 3, values);
+					if (validinput){
+						specular[0] = values[0];
+						specular[1] = values[1];
+						specular[2] = values[2];
+					}
+				}
+				else if (cmd == "shininess"){
+					validinput = readvals(s, 1, values);
+					if (validinput){
+						shininess = values[0];
+					}
+				}
+				else if (cmd == "emission"){
+					validinput = readvals(s, 3, values);
+					if (validinput){
+						emission[0] = values[0];
+						emission[1] = values[1];
+						emission[2] = values[2];
 					}
 				}
 				else if (cmd == "pushTransform"){

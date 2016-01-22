@@ -8,9 +8,16 @@
 
 class GeometryObject{
 public:
-	virtual HitInfo Intersect(float*& colorVals, Ray ray){ return HitInfo(); };
+	virtual HitInfo Intersect(Ray ray){ return HitInfo(); };
 	glm::mat4 transform;
 	
+	//All of the material properties
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	float shininess;
+	glm::vec3 specular;
+	glm::vec3 emission;
+
 	Ray TransformRay(Ray ray);
 
 };
@@ -21,7 +28,7 @@ public:
 	Quad(glm::vec3 inputPoints[4]);
 
 	//Define how intersection will return a color.
-	HitInfo Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(Ray ray) override;
 
 	glm::vec3 points[4];
 };
@@ -32,7 +39,7 @@ public:
 	Triangle(glm::vec3 inputPoints[3]);
 
 	//Define how the intersection will return a color
-	HitInfo Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(Ray ray) override;
 
 	//Points that define the triangle
 	glm::vec3 points[3];
@@ -45,7 +52,7 @@ public:
 	Sphere(glm::vec3 pos, float rad);
 
 	//Define how the intersection will return a color
-	HitInfo Intersect(float*& colorVals, Ray ray) override;
+	HitInfo Intersect(Ray ray) override;
 
 	glm::vec3 position;
 	float radius;

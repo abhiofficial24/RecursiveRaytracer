@@ -55,17 +55,31 @@ Quad::Quad(){
 	for (int i = 0; i < 4; i++){
 		points[i] = glm::vec3(0.0, 0.0, 0.0);
 	}
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 Quad::Quad(glm::vec3 inputPoints[4]){
 	//assing each point
 	for (int i = 0; i < 4; i++){
 		points[i] = inputPoints[i];
 	}
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 
 
 //Define intersections of quads
-HitInfo Quad::Intersect(float*& colorVals, Ray ray){
+HitInfo Quad::Intersect(Ray ray){
 
 	//Create the hit info to return
 	HitInfo hitInfo = HitInfo();
@@ -73,11 +87,6 @@ HitInfo Quad::Intersect(float*& colorVals, Ray ray){
 
 	ray = TransformRay(ray);
 
-	//Color values
-	colorVals = new float[3];
-	colorVals[0] = 0.0;
-	colorVals[1] = 0.0;
-	colorVals[2] = 0.0;
 
 	//We must assume the quad is coplanar
 	glm::vec3 quadPlaneNorm = glm::cross((points[1] - points[0]), (points[2] - points[0]));
@@ -122,10 +131,7 @@ HitInfo Quad::Intersect(float*& colorVals, Ray ray){
 	*/
 	//For now just color it all red
 	if (uCheck && vCheck){
-		//std::cout << "Coloring red" << std::endl;
-		colorVals[0] = 255.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
+
 
 		//Assign the values of hit info
 		hitInfo.t = t;
@@ -133,9 +139,6 @@ HitInfo Quad::Intersect(float*& colorVals, Ray ray){
 		hitInfo.position = ray.origin + ray.direction*t;
 		hitInfo.normal = quadPlaneNorm;
 		hitInfo.collisionObject = this;
-	}
-	else{
-		colorVals[0] = 0.0;
 	}
 
 	
@@ -149,6 +152,13 @@ Triangle::Triangle(){
 	for (int i = 0; i < 4; i++){
 		points[i] = glm::vec3(0.0, 0.0, 0.0);
 	}
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 
 Triangle::Triangle(glm::vec3 inputPoints[3]){
@@ -156,14 +166,22 @@ Triangle::Triangle(glm::vec3 inputPoints[3]){
 	for (int i = 0; i < 3; i++){
 		points[i] = inputPoints[i];
 	}
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 
-HitInfo Triangle::Intersect(float*& colorVals, Ray ray){
+HitInfo Triangle::Intersect(Ray ray){
 
 	//Create the hit info to return
 	HitInfo hitInfo = HitInfo();
 	hitInfo.t = 200;
 
+	hitInfo.raycast = ray;
 	ray = TransformRay(ray);
 
 	//Get the normal of the triangle
@@ -219,9 +237,6 @@ HitInfo Triangle::Intersect(float*& colorVals, Ray ray){
 
 	//color it red
 	if (withinThreshold && lessThanEqualTo){
-		colorVals[0] = 255.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
 
 		//Assign the values of hit info
 		hitInfo.t = t;
@@ -229,12 +244,6 @@ HitInfo Triangle::Intersect(float*& colorVals, Ray ray){
 		hitInfo.normal = triNormal;
 		hitInfo.collisionObject = this;
 	}
-	else{
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
-	}
-
 
 	return hitInfo;
 }
@@ -244,21 +253,36 @@ HitInfo Triangle::Intersect(float*& colorVals, Ray ray){
 Sphere::Sphere(){
 	position = glm::vec3(0, 0, 0);
 	radius = 1;
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 
 //Constructor that actually sets the parameters of the sphere
 Sphere::Sphere(glm::vec3 pos, float rad){
 	position = pos;
 	radius = rad;
+
+	//Set the defaults for material properties
+	ambient = glm::vec3(0, 0, 0);
+	diffuse = glm::vec3(0, 0, 0);
+	shininess = 0.0;
+	specular = glm::vec3(0, 0, 0);
+	emission = glm::vec3(0.2, 0.2, 0.2);
 }
 
 
 //Define how intersection will work for a sphere
-HitInfo Sphere::Intersect(float*& colorVals, Ray ray){
+HitInfo Sphere::Intersect(Ray ray){
 
 	//Create the hit info to return
 	HitInfo hitInfo = HitInfo();
 	hitInfo.t = 200;
+	hitInfo.raycast = ray;
 
 	ray = TransformRay(ray);
 
@@ -282,9 +306,6 @@ HitInfo Sphere::Intersect(float*& colorVals, Ray ray){
 
 	//No intersection so return early
 	if (discriminant < 0){
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
 		return hitInfo;
 	}
 
@@ -293,10 +314,6 @@ HitInfo Sphere::Intersect(float*& colorVals, Ray ray){
 	float root2 = (-b - sqrt(b*b - 4 * a*c)) / (2 * a);
 	
 	if (root1 == root2){
-		//Roots are equal, its tangent so there is no intersection
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
 		return hitInfo;
 	}
 
@@ -308,21 +325,21 @@ HitInfo Sphere::Intersect(float*& colorVals, Ray ray){
 		if (root1 > root2){
 			//Pick root2
 			intersectionPoint = ray.origin + ray.direction*root2;
-			//It's blue for now
-			colorVals[0] = 0.0;
-			colorVals[1] = 0.0;
-			colorVals[2] = 255.0;
+			hitInfo.t = root2;
 			hitInfo.position = intersectionPoint;
+			hitInfo.collisionObject = this;
+			//Normal for sphere is just the normalize vector of the intersection point - the sphere center
+			hitInfo.normal = glm::normalize(intersectionPoint - position);
 			return hitInfo;
 		}
 		else if(root2 > root1){
 			//Pick root1
 			intersectionPoint = ray.origin + ray.direction*root1;
-			//It's blue for now
-			colorVals[0] = 0.0;
-			colorVals[1] = 0.0;
-			colorVals[2] = 255.0;
+			hitInfo.t = root1;
 			hitInfo.position = intersectionPoint;
+			hitInfo.collisionObject = this;
+			//Normal for sphere is just the normalize vector of the intersection point - the sphere center
+			hitInfo.normal = glm::normalize(intersectionPoint - position);
 			return hitInfo;
 
 		}
@@ -332,32 +349,33 @@ HitInfo Sphere::Intersect(float*& colorVals, Ray ray){
 	if (root1 > 0 && root2 < 0){
 		//Pick root1
 		intersectionPoint = ray.origin + ray.direction*root1;
-		//It's blue for now
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 255.0;
+
+		hitInfo.t = root1;
 		hitInfo.position = intersectionPoint;
+		hitInfo.collisionObject = this;
+		//Normal for sphere is just the normalize vector of the intersection point - the sphere center
+		hitInfo.normal = glm::normalize(intersectionPoint - position);
 		return hitInfo;
 
 	}
 	else if (root2 > 0 && root1 < 0){
 		//Pick root2
 		intersectionPoint = ray.origin + ray.direction*root2;
-		//It's blue for now
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 255.0;
+
+		hitInfo.t = root2;
 		hitInfo.position = intersectionPoint;
+		hitInfo.collisionObject = this;
+		//Normal for sphere is just the normalize vector of the intersection point - the sphere center
+		hitInfo.normal = glm::normalize(intersectionPoint - position);
 		return hitInfo;
 	}
-	colorVals[0] = 0.0;
-	colorVals[1] = 0.0;
-	colorVals[2] = 0.0;
+
 
 	//Assign the values of hit info
 	hitInfo.t = t;
 	hitInfo.position = intersectionPoint;
-	//hitInfo.normal = triNormal;
+	//Normal for sphere is just the normalize vector of the intersection point - the sphere center
+	hitInfo.normal = glm::normalize(intersectionPoint - position);
 	hitInfo.collisionObject = this;
 
 	return hitInfo;

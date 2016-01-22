@@ -14,14 +14,13 @@
 #include "transform.h"
 #include <FreeImage.h>
 #include "HitInfo.h"
-
+#include "Utilities.h"
 
 #define BPP 24 // 8 bits per color and 3 colors per pixel
 
 using namespace std;
 
 HitInfo RayIntersect(Ray ray, int count){
-	float* colorVals = new float[3];
 	bool writeTo = false;
 	//Create a HitInfo, we will test it on every geometry object we can
 	HitInfo hitInfo = HitInfo();
@@ -32,13 +31,13 @@ HitInfo RayIntersect(Ray ray, int count){
 		if (dynamic_cast<Quad*>(*it) != nullptr){
 			Quad* quad = dynamic_cast<Quad*>(*it);
 			//Get the new color values
-			hitInfo = quad->Intersect(colorVals, ray);
+			hitInfo = quad->Intersect(ray);
 			writeTo = true;
 		}
 		else if (dynamic_cast<Triangle*>(*it) != nullptr){
 			Triangle* triangle = dynamic_cast<Triangle*>(*it);
 			//Get the new color values
-			HitInfo curHitInfo = triangle->Intersect(colorVals, ray);
+			HitInfo curHitInfo = triangle->Intersect(ray);
 			//If the new intersection is closer, it is the new hit info
 			if (curHitInfo.t < hitInfo.t){
 				hitInfo = curHitInfo;
@@ -47,7 +46,7 @@ HitInfo RayIntersect(Ray ray, int count){
 		else if (dynamic_cast<Sphere*>(*it) != nullptr){
 			Sphere* sphere = dynamic_cast<Sphere*>(*it);
 			//Get the new color values
-			HitInfo curHitInfo = sphere->Intersect(colorVals, ray);
+			HitInfo curHitInfo = sphere->Intersect(ray);
 			//If the new intersection is closer, it is the new hit info
 			if (curHitInfo.t < hitInfo.t){
 				hitInfo = curHitInfo;
@@ -58,26 +57,36 @@ HitInfo RayIntersect(Ray ray, int count){
 }
 
 void FindColor(HitInfo info, float* colorVals){
+
+	//Intialize to all black
+	colorVals[0] = 0.0;
+	colorVals[1] = 0.0;
+	colorVals[2] = 0.0;
+
 	//If the collision actually occured
 	if (info.t < 100){
-		//Color changes dependent on what object it was
-		if (dynamic_cast<Triangle*>(info.collisionObject)){
-			colorVals[0] = 255.0;
-			colorVals[1] = 0.0;
-			colorVals[2] = 0.0;
+		//Iterate through each light
+		for (int i = 0; i < numused; i++){
+
+			lightSpec currentLight = lightData[i];
+			
+
+
+			//Transform the position of the position by it's objects transform
+			glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(info.position.x, info.position.y, info.position.z, 1);
+
+			transformedPos4 /= transformedPos4.w;
+
+			glm::vec3 transformedPos3 = glm::vec3(transformedPos4.x, transformedPos4.y, transformedPos4.z);
+
+			float distToLight = currentLight.IsVisible(transformedPos3);
+
+			if (distToLight != -1.0){
+				colorVals[0] += currentLight.color.r * (255.0/numLights);
+				colorVals[1] += currentLight.color.b * (255.0/numLights);
+				colorVals[2] += currentLight.color.g * (255.0/numLights);
+			}
 		}
-		//Color changes dependent on what object it was
-		else if (dynamic_cast<Sphere*>(info.collisionObject)){
-			colorVals[0] = 0.0;
-			colorVals[1] = 0.0;
-			colorVals[2] = 255.0;
-		}
-	}
-	//If there was no intersection
-	else{
-		colorVals[0] = 0.0;
-		colorVals[1] = 0.0;
-		colorVals[2] = 0.0;
 	}
 }
 
@@ -89,7 +98,7 @@ float* Raytrace(){
 	for (int i = 0; i < WIDTH; i++){
 		for (int j = 0; j < HEIGHT; j++){
 			Ray nextRay = Ray::ShootRay(i, j);
-			HitInfo hitInfo = RayIntersect(nextRay, count);
+			HitInfo hitInfo = Utilities::RayIntersect(nextRay);
 			float* colorVals = new float[3];
 			FindColor(hitInfo, colorVals);
 			ColorData[count] = colorVals[0];

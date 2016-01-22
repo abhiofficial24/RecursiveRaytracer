@@ -86,11 +86,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lightSpec.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objDefinitions.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="readfile.cpp" />
     <ClCompile Include="transform.cpp" />
+    <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HitInfo.h" />
@@ -99,6 +101,7 @@
     <ClInclude Include="ray.h" />
     <ClInclude Include="readfile.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

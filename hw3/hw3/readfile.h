@@ -28,3 +28,9 @@ extern int numused;
 // Readfile definitions 
 bool readvals(std::stringstream &s, const int numvals, float * values);
 void readfile(const char * filename);
+
+//Current material properties
+extern glm::vec3 diffuse;
+extern glm::vec3 specular;
+extern glm::vec3 emission;
+extern float shininess;
