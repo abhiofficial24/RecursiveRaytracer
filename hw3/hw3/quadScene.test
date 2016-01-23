@@ -6,8 +6,13 @@ camera 0 -4 4 0 -1 0 0 1 1 45
 
 size 640 480
 
-point -2 1 4 200 100 5
-point 3 4 -1 0 0 255
+specular 0 0 0.5
+shininess 3
+emission 0.1 0 0.2
+diffuse 0.5 0.5 0
+
+point -2 1 4 0.8 0.3 0.1
+point 3 4 -1 0 0 1.0
 
 vertex 1.0 -1 -1 
 vertex 1.0 1.0 -1 

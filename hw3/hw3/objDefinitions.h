@@ -12,7 +12,6 @@ public:
 	glm::mat4 transform;
 	
 	//All of the material properties
-	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	float shininess;
 	glm::vec3 specular;

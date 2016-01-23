@@ -22,10 +22,14 @@ glm::vec3 upinit;
 glm::vec3 up;
 float fovy;
 std::vector<glm::vec3> vertexList;
+int maxverts;
 float* ColorData;
 std::vector<GeometryObject*> geometryVector;
 lightSpec lightData[numLights];
 int numused;
+
+glm::vec3 attenuation;
+glm::vec3 ambient;
 
 glm::vec3 diffuse;
 glm::vec3 specular;
@@ -78,11 +82,15 @@ void readfile(const char* filename){
 		std::cout << "File opening has failed" << std::endl;
 	}
 
+	//Defaults for lighting properties
+	attenuation = glm::vec3(1.0, 0.0, 0.0);
+	ambient = glm::vec3(0.2, 0.2, 0.2);
+
 	//Defaults for the material properties
 	//Current material properties
 	diffuse = glm::vec3(0.0, 0.0, 0.0);
-	ambient = glm::vec3(0.0, 0.0, 0.0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	specular = glm::vec3(0.0, 0.0, 0.0);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 	shininess = 0.0;
 
 
@@ -167,6 +175,13 @@ void readfile(const char* filename){
 						vertexList.push_back(vertex);
 						//Debug values
 						std::cout << "Vertex value of (" << vertex[0] << ", " << vertex[1] << ", " << vertex[2] << ") " << std::endl;
+					}
+				}
+				else if (cmd == "maxverts"){
+					validinput = readvals(s, 1, values);
+					if (validinput){
+						maxverts = values[0];
+						std::cout << "Parsing and assigning maxverts even though we dont use it" << std::endl;
 					}
 				}
 				else if (cmd == "quad"){
@@ -382,6 +397,24 @@ void readfile(const char* filename){
 						numused++;
 					}
 				}
+				else if (cmd == "attenuation"){
+					validinput = readvals(s, 3, values);
+					if (validinput){
+						std::cout << "setting attenuation values" << std::endl;
+						attenuation[0] = values[0];
+						attenuation[1] = values[1];
+						attenuation[2] = values[2];
+					}
+				}
+				else if (cmd == "ambient"){
+					validinput = readvals(s, 3, values);
+					if (validinput){
+						std::cout << "setting ambient values" << std::endl;
+						ambient[0] = values[0];
+						ambient[1] = values[1];
+						ambient[2] = values[2];
+					}
+				}
 				else if (cmd == "diffuse"){
 					validinput = readvals(s, 3, values);
 					if (validinput){
@@ -389,6 +422,7 @@ void readfile(const char* filename){
 						diffuse[1] = values[1];
 						diffuse[2] = values[2];
 					}
+					std::cout << "Diffuse value of (" << diffuse[0] << ", " << diffuse[1] << ", " << diffuse[2] << ")" << std::endl;
 				}
 				else if (cmd == "specular"){
 					validinput = readvals(s, 3, values);
@@ -397,12 +431,14 @@ void readfile(const char* filename){
 						specular[1] = values[1];
 						specular[2] = values[2];
 					}
+					std::cout << "Specular value of (" << specular[0] << ", " << specular[1] << ", " << specular[2] << ")" << std::endl;
 				}
 				else if (cmd == "shininess"){
 					validinput = readvals(s, 1, values);
 					if (validinput){
 						shininess = values[0];
 					}
+					std::cout << "Shininess value of: " << shininess << std::endl;
 				}
 				else if (cmd == "emission"){
 					validinput = readvals(s, 3, values);
@@ -411,6 +447,7 @@ void readfile(const char* filename){
 						emission[1] = values[1];
 						emission[2] = values[2];
 					}
+					std::cout << "Emission value of (" << emission[0] << ", " << emission[1] << ", " << emission[2] << ")" << std::endl;
 				}
 				else if (cmd == "pushTransform"){
 					transfstack.push(transfstack.top());

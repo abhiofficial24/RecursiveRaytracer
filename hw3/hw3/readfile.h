@@ -17,6 +17,7 @@ extern glm::vec3 upinit;
 extern glm::vec3 up;
 extern float fovy;
 extern std::vector<glm::vec3> vertexList;
+extern int maxverts;
 extern float* ColorData;
 extern std::vector<GeometryObject*> geometryVector;
 
@@ -24,6 +25,10 @@ extern std::vector<GeometryObject*> geometryVector;
 const int numLights = 10;
 extern lightSpec lightData[numLights]; // Light Specification data
 extern int numused;
+
+//other lighting properties
+extern glm::vec3 attenuation;
+extern glm::vec3 ambient;
 
 // Readfile definitions 
 bool readvals(std::stringstream &s, const int numvals, float * values);

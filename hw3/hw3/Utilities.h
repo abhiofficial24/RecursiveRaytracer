@@ -12,5 +12,5 @@
 class Utilities{
 public:
 	static HitInfo RayIntersect(Ray ray);
-
+	static void FindColor(HitInfo info, float* colorVals);
 };

@@ -39,3 +39,68 @@ HitInfo Utilities::RayIntersect(Ray ray){
 	return hitInfo;
 
 }
+
+
+void Utilities::FindColor(HitInfo info, float* colorVals){
+
+	//Initialize to blue
+	colorVals[0] = 0.0;
+	colorVals[1] = 0.0;
+	colorVals[2] = 1.0;
+
+	//If the collision actually occured
+	if (info.t < 100){
+
+		//A hit was found so add ambient and emission
+		colorVals[0] = ambient[0] + info.collisionObject->emission[0];
+		colorVals[1] = ambient[1] + info.collisionObject->emission[1];
+		colorVals[2] = ambient[2] + info.collisionObject->emission[2];
+
+		//Iterate through each light
+		for (int i = 0; i < numused; i++){
+
+			lightSpec currentLight = lightData[i];
+
+			//Transform the position of the position by it's objects transform
+			glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(info.position.x, info.position.y, info.position.z, 1);
+
+			transformedPos4 /= transformedPos4.w;
+
+			glm::vec3 transformedPos3 = glm::vec3(transformedPos4.x, transformedPos4.y, transformedPos4.z);
+
+			float distToLight = currentLight.IsVisible(transformedPos3);
+
+			if (distToLight != -1.0){
+
+				//Now do the real lighting calculations
+				glm::vec3 direction = glm::normalize(transformedPos3 - info.position);
+
+				glm::vec3 eyedirn = glm::normalize(eyeinit - info.position);
+
+				glm::vec3 half = glm::normalize(direction + eyedirn);
+
+				glm::vec3 newColor;
+				float term1 = (1 / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
+				glm::vec3 term2 = info.collisionObject->diffuse;//*std::fmax(glm::dot(info.normal, direction), 0));
+				term2[0] *= std::fmax(glm::dot(info.normal, direction), 0);
+				term2[1] *= std::fmax(glm::dot(info.normal, direction), 0);
+				term2[2] *= std::fmax(glm::dot(info.normal, direction), 0);
+				glm::vec3 term3 = (info.collisionObject->specular);
+
+				term3[0] *= pow(std::fmax(glm::dot(info.normal, half), 0),2);
+				term3[1] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
+				term3[2] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
+
+				glm::vec3 combinedTerms = term2 + term3;
+				newColor[0] = combinedTerms[0] * term1;
+				newColor[1] = combinedTerms[1] * term1;
+				newColor[2] = combinedTerms[2] * term1;
+
+
+				colorVals[0] += newColor[0] * (255.0 / numLights);
+				colorVals[1] += newColor[1] * (255.0 / numLights);
+				colorVals[2] += newColor[2] * (255.0 / numLights);
+			}
+		}
+	}
+}

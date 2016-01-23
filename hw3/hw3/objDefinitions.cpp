@@ -57,11 +57,10 @@ Quad::Quad(){
 	}
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 Quad::Quad(glm::vec3 inputPoints[4]){
 	//assing each point
@@ -70,11 +69,10 @@ Quad::Quad(glm::vec3 inputPoints[4]){
 	}
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 
 
@@ -154,11 +152,10 @@ Triangle::Triangle(){
 	}
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 
 Triangle::Triangle(glm::vec3 inputPoints[3]){
@@ -168,11 +165,10 @@ Triangle::Triangle(glm::vec3 inputPoints[3]){
 	}
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 
 HitInfo Triangle::Intersect(Ray ray){
@@ -255,11 +251,10 @@ Sphere::Sphere(){
 	radius = 1;
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 
 //Constructor that actually sets the parameters of the sphere
@@ -268,11 +263,10 @@ Sphere::Sphere(glm::vec3 pos, float rad){
 	radius = rad;
 
 	//Set the defaults for material properties
-	ambient = glm::vec3(0, 0, 0);
 	diffuse = glm::vec3(0, 0, 0);
 	shininess = 0.0;
 	specular = glm::vec3(0, 0, 0);
-	emission = glm::vec3(0.2, 0.2, 0.2);
+	emission = glm::vec3(0.0, 0.0, 0.0);
 }
 
 
