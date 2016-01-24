@@ -7,10 +7,17 @@
  * Date: 1/21/15
  */
 
+#ifdef EXPORT_TEST_FUNCTIONS
+
+#define MY_CPP_UNITTESTAPP_EXPORT __declspec(dllexport)
+#else
+#define MY_CPP_UNITTESTAPP_EXPORT
+#endif
+
 #include "HitInfo.h"
 
 class Utilities{
 public:
-	static HitInfo RayIntersect(Ray ray);
-	static void FindColor(HitInfo info, float* colorVals);
+	MY_CPP_UNITTESTAPP_EXPORT static HitInfo RayIntersect(Ray ray);
+	MY_CPP_UNITTESTAPP_EXPORT static void FindColor(HitInfo info, float* colorVals);
 };

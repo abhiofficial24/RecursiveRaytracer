@@ -19,6 +19,8 @@ public:
 
 	Ray TransformRay(Ray ray);
 
+	glm::vec3 InverseTransformNormal(glm::vec3 normal);
+
 };
 
 class Quad : public GeometryObject{

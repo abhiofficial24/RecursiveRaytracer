@@ -50,6 +50,32 @@ Ray GeometryObject::TransformRay(Ray ray){
 }
 
 
+glm::vec3 GeometryObject::InverseTransformNormal(glm::vec3 normal){
+	//Get the inverse of the transform
+	glm::mat4 inverseMat = glm::inverse(transform);
+	//Get the transpose of the inverse
+	glm::mat4 inverseTransposeMat = glm::transpose(inverseMat);
+
+	//If the normalwasn't normalized we do it again here
+	normal = glm::normalize(normal);
+
+	glm::vec4  transformNormal = glm::vec4(normal, 1);
+
+	//Transform the normal
+	transformNormal = inverseTransposeMat * transformNormal;
+
+	//Dehomogenize normal if necessary
+	transformNormal /= transformNormal.w;
+
+	//normalize the normal again
+	transformNormal = glm::normalize(transformNormal);
+
+	//Return the now transformed normal
+	return glm::vec3(transformNormal);
+
+
+}
+
 
 Quad::Quad(){
 	for (int i = 0; i < 4; i++){
@@ -135,7 +161,9 @@ HitInfo Quad::Intersect(Ray ray){
 		hitInfo.t = t;
 		hitInfo.raycast = ray;
 		hitInfo.position = ray.origin + ray.direction*t;
-		hitInfo.normal = quadPlaneNorm;
+		glm::vec3 normal = quadPlaneNorm;
+		normal = InverseTransformNormal(normal);
+		hitInfo.normal = normal;
 		hitInfo.collisionObject = this;
 	}
 
@@ -237,7 +265,9 @@ HitInfo Triangle::Intersect(Ray ray){
 		//Assign the values of hit info
 		hitInfo.t = t;
 		hitInfo.position = P;
-		hitInfo.normal = triNormal;
+		glm::vec3 normal = triNormal;
+		normal = InverseTransformNormal(normal);
+		hitInfo.normal = normal;
 		hitInfo.collisionObject = this;
 	}
 
@@ -323,7 +353,9 @@ HitInfo Sphere::Intersect(Ray ray){
 			hitInfo.position = intersectionPoint;
 			hitInfo.collisionObject = this;
 			//Normal for sphere is just the normalize vector of the intersection point - the sphere center
-			hitInfo.normal = glm::normalize(intersectionPoint - position);
+			glm::vec3 normal = glm::normalize(intersectionPoint - position);
+			normal = InverseTransformNormal(normal);
+			hitInfo.normal = normal;
 			return hitInfo;
 		}
 		else if(root2 > root1){
@@ -333,7 +365,9 @@ HitInfo Sphere::Intersect(Ray ray){
 			hitInfo.position = intersectionPoint;
 			hitInfo.collisionObject = this;
 			//Normal for sphere is just the normalize vector of the intersection point - the sphere center
-			hitInfo.normal = glm::normalize(intersectionPoint - position);
+			glm::vec3 normal = glm::normalize(intersectionPoint - position);
+			normal = InverseTransformNormal(normal);
+			hitInfo.normal = normal;
 			return hitInfo;
 
 		}
@@ -348,7 +382,9 @@ HitInfo Sphere::Intersect(Ray ray){
 		hitInfo.position = intersectionPoint;
 		hitInfo.collisionObject = this;
 		//Normal for sphere is just the normalize vector of the intersection point - the sphere center
-		hitInfo.normal = glm::normalize(intersectionPoint - position);
+		glm::vec3 normal = glm::normalize(intersectionPoint - position);
+		normal = InverseTransformNormal(normal);
+		hitInfo.normal = normal;
 		return hitInfo;
 
 	}
@@ -360,7 +396,9 @@ HitInfo Sphere::Intersect(Ray ray){
 		hitInfo.position = intersectionPoint;
 		hitInfo.collisionObject = this;
 		//Normal for sphere is just the normalize vector of the intersection point - the sphere center
-		hitInfo.normal = glm::normalize(intersectionPoint - position);
+		glm::vec3 normal = glm::normalize(intersectionPoint - position);
+		normal = InverseTransformNormal(normal);
+		hitInfo.normal = normal;
 		return hitInfo;
 	}
 
@@ -369,7 +407,9 @@ HitInfo Sphere::Intersect(Ray ray){
 	hitInfo.t = t;
 	hitInfo.position = intersectionPoint;
 	//Normal for sphere is just the normalize vector of the intersection point - the sphere center
-	hitInfo.normal = glm::normalize(intersectionPoint - position);
+	glm::vec3 normal = glm::normalize(intersectionPoint - position);
+	normal = InverseTransformNormal(normal);
+	hitInfo.normal = normal;
 	hitInfo.collisionObject = this;
 
 	return hitInfo;

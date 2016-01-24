@@ -1,3 +1,5 @@
+#define EXPORT_TEST_FUNCTIONS
+
 #include "Utilities.h"
 #include "objDefinitions.h"
 #include "vector"
@@ -62,7 +64,7 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 			lightSpec currentLight = lightData[i];
 
 			//Transform the position of the position by it's objects transform
-			glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(info.position.x, info.position.y, info.position.z, 1);
+			glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(currentLight.position.x, currentLight.position.y, currentLight.position.z, 1);
 
 			transformedPos4 /= transformedPos4.w;
 
@@ -72,12 +74,18 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 
 			if (distToLight != -1.0){
 
+				//Transform normal
+				glm::vec3 normal = info.normal;
+
 				//Now do the real lighting calculations
-				glm::vec3 direction = glm::normalize(transformedPos3 - info.position);
+				glm::vec3 direction = transformedPos3 - info.position;
+				direction = glm::normalize(direction);
 
-				glm::vec3 eyedirn = glm::normalize(eyeinit - info.position);
+				glm::vec3 eyedirn = eyeinit - info.position;
+				eyedirn = glm::normalize(eyedirn);
 
-				glm::vec3 half = glm::normalize(direction + eyedirn);
+				glm::vec3 half = direction + eyedirn;
+				half = glm::normalize(half);
 
 				glm::vec3 newColor;
 				float term1 = (1 / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
@@ -87,7 +95,7 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 				term2[2] *= std::fmax(glm::dot(info.normal, direction), 0);
 				glm::vec3 term3 = (info.collisionObject->specular);
 
-				term3[0] *= pow(std::fmax(glm::dot(info.normal, half), 0),2);
+				term3[0] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
 				term3[1] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
 				term3[2] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
 
@@ -97,9 +105,9 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 				newColor[2] = combinedTerms[2] * term1;
 
 
-				colorVals[0] += newColor[0] * (255.0 / numLights);
-				colorVals[1] += newColor[1] * (255.0 / numLights);
-				colorVals[2] += newColor[2] * (255.0 / numLights);
+				colorVals[0] += newColor[0] * 255.0;
+				colorVals[1] += newColor[1] * 255.0;
+				colorVals[2] += newColor[2] * 255.0; 
 			}
 		}
 	}
