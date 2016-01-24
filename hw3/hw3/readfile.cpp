@@ -153,6 +153,7 @@ void readfile(const char* filename){
 
 						up = glm::vec3(values[6], values[7], values[8]);
 						glm::vec3 zVec = eyeinit - center;
+						//glm::vec3 zVec = center - eyeinit;
 						zVec = glm::normalize(zVec);
 
 						upinit = Transform::upvector(up, zVec);
@@ -218,6 +219,7 @@ void readfile(const char* filename){
 						curQuad->specular = specular;
 						curQuad->shininess = shininess;
 						curQuad->emission = emission;
+						curQuad->ambient = ambient;
 
 						//Push it onto the stack.
 						geometryVector.push_back(curQuad);
@@ -250,6 +252,7 @@ void readfile(const char* filename){
 						curTriangle->specular = specular;
 						curTriangle->shininess = shininess;
 						curTriangle->emission = emission;
+						curTriangle->ambient = ambient;
 
 						//Push it onto the stack.
 						geometryVector.push_back(curTriangle);
@@ -278,6 +281,7 @@ void readfile(const char* filename){
 						curSphere->specular = specular;
 						curSphere->shininess = shininess;
 						curSphere->emission = emission;
+						curSphere->ambient = ambient;
 
 						//push the sphere onto the stack
 						geometryVector.push_back(curSphere);

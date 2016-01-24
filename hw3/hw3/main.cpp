@@ -30,7 +30,7 @@ float* Raytrace(){
 			Ray nextRay = Ray::ShootRay(i, j);
 			HitInfo hitInfo = Utilities::RayIntersect(nextRay);
 			float* colorVals = new float[3];
-			Utilities::FindColor(hitInfo, colorVals);
+			Utilities::FindColor(hitInfo, colorVals, 0);
 			ColorData[count] = colorVals[0];
 			ColorData[count + 1] = colorVals[1];
 			ColorData[count + 2] = colorVals[2];
@@ -88,7 +88,12 @@ int main(int argc, char* argv[]) {
 
 	ColorData = Raytrace();
 
-	Create_Image(ColorData, WIDTH, HEIGHT, "test.png");
+	//Make the image filename
+
+	string imgFileName = argv[1];
+	imgFileName.replace(imgFileName.find("."), imgFileName.length(), ".png");
+
+	Create_Image(ColorData, WIDTH, HEIGHT, imgFileName);
 
 	FreeImage_DeInitialise();
 

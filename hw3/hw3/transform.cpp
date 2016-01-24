@@ -13,7 +13,7 @@ glm::vec3 Transform::w;
 
 glm::vec3 Transform::upvector(const glm::vec3 &up, const glm::vec3 & zvec)
 {
-	glm::vec3 x = glm::cross(up, zvec);
+	glm::vec3 x = glm::cross(zvec, up);
 	glm::vec3 y = glm::cross(zvec, x);
 	glm::vec3 ret = glm::normalize(y);
 	return ret;

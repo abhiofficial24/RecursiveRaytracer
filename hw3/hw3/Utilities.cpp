@@ -43,20 +43,20 @@ HitInfo Utilities::RayIntersect(Ray ray){
 }
 
 
-void Utilities::FindColor(HitInfo info, float* colorVals){
+void Utilities::FindColor(HitInfo info, float* colorVals, int recDepth){
 
 	//Initialize to blue
 	colorVals[0] = 0.0;
 	colorVals[1] = 0.0;
-	colorVals[2] = 1.0;
+	colorVals[2] = 0.0;
 
 	//If the collision actually occured
 	if (info.t < 100){
 
 		//A hit was found so add ambient and emission
-		colorVals[0] = ambient[0] + info.collisionObject->emission[0];
-		colorVals[1] = ambient[1] + info.collisionObject->emission[1];
-		colorVals[2] = ambient[2] + info.collisionObject->emission[2];
+		colorVals[0] = info.collisionObject->ambient[0] + info.collisionObject->emission[0];
+		colorVals[1] = info.collisionObject->ambient[1] + info.collisionObject->emission[1];
+		colorVals[2] = info.collisionObject->ambient[2] + info.collisionObject->emission[2];
 
 		//Iterate through each light
 		for (int i = 0; i < numused; i++){
@@ -64,22 +64,43 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 			lightSpec currentLight = lightData[i];
 
 			//Transform the position of the position by it's objects transform
-			glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(currentLight.position.x, currentLight.position.y, currentLight.position.z, 1);
+			glm::vec4 transformedPos4;
+			glm::vec3 transformedPos3;
 
-			transformedPos4 /= transformedPos4.w;
+			if (currentLight.type == lightSpec::Point){
+				transformedPos4 = info.collisionObject->transform * glm::vec4(currentLight.position.x, currentLight.position.y, currentLight.position.z, 1);
 
-			glm::vec3 transformedPos3 = glm::vec3(transformedPos4.x, transformedPos4.y, transformedPos4.z);
+				//glm::vec4 transformedPos4 = info.collisionObject->transform * glm::vec4(info.position.x, info.position.y, info.position.z, 1);
+
+				transformedPos4 /= transformedPos4.w;
+			}
+			//Directional lights have a w of 0 and do not need to be dehomogenized.
+			else{
+				transformedPos4 = info.collisionObject->transform * glm::vec4(currentLight.position.x, currentLight.position.y, currentLight.position.z, 0);
+			}
+
+			transformedPos3 = glm::vec3(transformedPos4.x, transformedPos4.y, transformedPos4.z);
 
 			float distToLight = currentLight.IsVisible(transformedPos3);
 
 			if (distToLight != -1.0){
-
+				
 				//Transform normal
 				glm::vec3 normal = info.normal;
 
 				//Now do the real lighting calculations
-				glm::vec3 direction = transformedPos3 - info.position;
-				direction = glm::normalize(direction);
+				glm::vec3 direction;
+
+				//Point light direction
+				if (currentLight.type == lightSpec::Point){
+					direction = transformedPos3 - info.position;
+					direction = glm::normalize(direction);
+				}
+				//Directional light direction is just it's position.
+				else{
+					direction = transformedPos3;
+					direction = glm::normalize(direction);
+				}
 
 				glm::vec3 eyedirn = eyeinit - info.position;
 				eyedirn = glm::normalize(eyedirn);
@@ -88,26 +109,28 @@ void Utilities::FindColor(HitInfo info, float* colorVals){
 				half = glm::normalize(half);
 
 				glm::vec3 newColor;
-				float term1 = (1 / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
-				glm::vec3 term2 = info.collisionObject->diffuse;//*std::fmax(glm::dot(info.normal, direction), 0));
-				term2[0] *= std::fmax(glm::dot(info.normal, direction), 0);
-				term2[1] *= std::fmax(glm::dot(info.normal, direction), 0);
-				term2[2] *= std::fmax(glm::dot(info.normal, direction), 0);
+				float term1R = (currentLight.color[0] / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
+				float term1G = (currentLight.color[1] / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
+				float term1B = (currentLight.color[2] / (attenuation[0] + (attenuation[1] * distToLight) + (attenuation[2] * pow(distToLight, 2))));
+				glm::vec3 term2 = info.collisionObject->diffuse;
+				term2[0] *= std::fmax(glm::dot(normal, direction), 0);
+				term2[1] *= std::fmax(glm::dot(normal, direction), 0);
+				term2[2] *= std::fmax(glm::dot(normal, direction), 0);
 				glm::vec3 term3 = (info.collisionObject->specular);
 
-				term3[0] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
-				term3[1] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
-				term3[2] *= pow(std::fmax(glm::dot(info.normal, half), 0), 2);
+				term3[0] *= pow(std::fmax(glm::dot(normal, half), 0), 2);
+				term3[1] *= pow(std::fmax(glm::dot(normal, half), 0), 2);
+				term3[2] *= pow(std::fmax(glm::dot(normal, half), 0), 2);
 
 				glm::vec3 combinedTerms = term2 + term3;
-				newColor[0] = combinedTerms[0] * term1;
-				newColor[1] = combinedTerms[1] * term1;
-				newColor[2] = combinedTerms[2] * term1;
+				newColor[0] = combinedTerms[0] * term1R;
+				newColor[1] = combinedTerms[1] * term1G;
+				newColor[2] = combinedTerms[2] * term1B;
+				
 
-
-				colorVals[0] += newColor[0] * 255.0;
-				colorVals[1] += newColor[1] * 255.0;
-				colorVals[2] += newColor[2] * 255.0; 
+				colorVals[0] += newColor[0];
+				colorVals[1] += newColor[1];
+				colorVals[2] += newColor[2];
 			}
 		}
 	}

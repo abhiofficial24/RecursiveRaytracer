@@ -19,5 +19,5 @@
 class Utilities{
 public:
 	MY_CPP_UNITTESTAPP_EXPORT static HitInfo RayIntersect(Ray ray);
-	MY_CPP_UNITTESTAPP_EXPORT static void FindColor(HitInfo info, float* colorVals);
+	MY_CPP_UNITTESTAPP_EXPORT static void FindColor(HitInfo info, float* colorVals, int recursionDepth);
 };

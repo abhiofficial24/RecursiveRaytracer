@@ -19,7 +19,7 @@ Ray Ray::ShootRay(int i, int j){
 	float fHEIGHT = (float)HEIGHT;
 
 	//I also need the x field of view
-	float fovx = 2 * atan((fWIDTH / fHEIGHT) * tan(fFOVY / 2));
+	float fovx = 2 * atan(tan(fFOVY / 2)*(fWIDTH / fHEIGHT));
 
 	//I think I can just do the equations for alpha and beta without 
 	//deriving them now
