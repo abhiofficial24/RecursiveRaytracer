@@ -149,6 +149,10 @@ object which can also have a reflectivity which then means it gets it's own refl
 where the "recusive" part comes from. The color of the refection ray is then added to the "original"
 color we got before in step 10 of the shading model. Just straight addition. Lecture 10 video 4 explains
 all this.
+
+Snells law for direction of reflection
+reflected ray direction = 2(surface normal DOT incident direction) surface normal - incident direction
+
 The thing we want to get right here is just get the reflection rays going in the right directions, how that
 effects colors will be the next step. It is easy enough to have debug messages like "Reflected ray for
 pixel(x,y) is going in direction(x,y,z).
